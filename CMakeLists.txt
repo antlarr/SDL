@@ -333,6 +333,7 @@ set_option(VIDEO_VIVANTE       "Use Vivante EGL video driver" ${UNIX_SYS})
 dep_option(VIDEO_VULKAN        "Enable Vulkan support" ON "ANDROID OR APPLE OR LINUX OR WINDOWS" OFF)
 set_option(VIDEO_KMSDRM        "Use KMS DRM video driver" ${UNIX_SYS})
 dep_option(KMSDRM_SHARED       "Dynamically load KMS DRM support" ON "VIDEO_KMSDRM" OFF)
+set_option(VIDEO_MALI          "Use Mali EGL video driver" ${UNIX_SYS})
 
 # TODO: We should (should we?) respect cmake's ${BUILD_SHARED_LIBS} flag here
 # The options below are for compatibility to configure's default behaviour.
@@ -976,6 +977,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID)
     CheckWayland()
     CheckVivante()
     CheckKMSDRM()
+    CheckMali()
   endif()
 
   if(UNIX)

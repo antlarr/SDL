@@ -856,6 +856,7 @@ enable_video_opengles
 enable_video_opengles1
 enable_video_opengles2
 enable_video_vulkan
+enable_video_mali
 enable_libudev
 enable_dbus
 enable_ime
@@ -1607,6 +1608,7 @@ Optional Features:
   --enable-video-opengles2
                           include OpenGL ES 2.0 support [[default=yes]]
   --enable-video-vulkan   include Vulkan support [[default=yes]]
+  --enable-video-mali     include Mali EGL support [[default=yes]]
   --enable-libudev        enable libudev support [[default=yes]]
   --enable-dbus           enable D-Bus support [[default=yes]]
   --enable-ime            enable IME support [[default=yes]]
@@ -22066,6 +22068,58 @@ $as_echo "#define SDL_VIDEO_VULKAN 1" >>confdefs.h
     fi
 }
 
+
+CheckMaliVideo()
+{
+    # Check whether --enable-video-mali was given.
+if test "${enable_video_mali+set}" = set; then :
+  enableval=$enable_video_mali;
+else
+  enable_video_mali=yes
+fi
+
+    if test x$enable_video = xyes -a x$enable_video_mali = xyes; then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Mali FB API" >&5
+$as_echo_n "checking for Mali FB API... " >&6; }
+        have_mali_egl=no
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+          #define LINUX
+          #define EGL_API_FB
+          #include <EGL/egl.h>
+
+int
+main ()
+{
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+        have_mali_egl=yes
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_mali_egl" >&5
+$as_echo "$have_mali_egl" >&6; }
+
+        if test x$have_mali_egl = xyes; then
+
+$as_echo "#define SDL_VIDEO_DRIVER_MALI 1" >>confdefs.h
+
+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DLINUX -DEGL_API_FB"
+            SOURCES="$SOURCES $srcdir/src/video/mali-fbdev/*.c"
+            SUMMARY_video="${SUMMARY_video} mali"
+            have_video=yes
+        fi
+    fi
+}
+
+
 CheckInputEvents()
 {
             { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Linux 2.4 unified input interface" >&5
@@ -23803,6 +23857,7 @@ case "$host" in
         CheckLinuxVersion
         CheckRPATH
         CheckVivanteVideo
+        CheckMaliVideo
 
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
